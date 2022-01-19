@@ -6,7 +6,7 @@ import exceptions.InsusfficientmoneyException;
 import java.util.List;
 import java.util.Map;
 
-public class IngredientHandler {
+public class IngredientHandler extends RestaurantHandler{
     public void viewIngredients(List<Ingredient> ingredientList){
         for(Ingredient ingredient : ingredientList){
             System.out.println(ingredient.toString());

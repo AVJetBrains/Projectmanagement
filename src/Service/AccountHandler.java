@@ -31,8 +31,4 @@ public class AccountHandler {
         }
         System.out.println("Net Profit is " + netProfit);
     }
-
-
-
-
 }

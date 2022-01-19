@@ -10,10 +10,10 @@ import java.util.List;
 import java.util.Map;
 
 public class ReceipeHandler {
-    public void checkifPossibleToPrepareRecipe(Receipe receipe , List<Ingredient>ingredients){
+    public void checkifPossibleToPrepareRecipe(Receipe receipe , List<Ingredient>ingredientList){
         Map<Ingredient, Double> composition = receipe.getComposition();
         Map<Ingredient, Double> InsufficientIngredient = new HashMap<>();
-        for(Ingredient ing : ingredients){
+        for(Ingredient ing : ingredientList){
          if(composition.containsKey(ing)){
              double qtyUsed = composition.get(ing);
              if(qtyUsed > ing.getQty()){

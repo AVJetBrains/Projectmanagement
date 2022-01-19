@@ -2,18 +2,16 @@ import Service.AccountHandler;
 import Service.IngredientHandler;
 import Service.ReceipeHandler;
 import entities.*;
-import exceptions.IngredientNotFoundException;
-import exceptions.InsufficientIngredientException;
-import exceptions.InsusfficientmoneyException;
-import exceptions.ReciepeNotFoundException;
+import exceptions.*;
 import io.Ingredientio;
 import io.Receipeio;
 import io.accountIO;
+import Service.RestaurantHandler;
+import io.restaurantIO;
+import io.LocationIO;
 
 
 import java.io.FileNotFoundException;
-import java.lang.module.FindException;
-import java.sql.PseudoColumnUsage;
 import java.util.*;
 
 public class Main {
@@ -29,6 +27,9 @@ public class Main {
     private static Ingredientio ingredientio;
     private static Receipeio receipeio;
     private static accountIO accountIO;
+    private static List<Restaurant> restaurantList;
+    private static RestaurantHandler restaurantHandler;
+    private static List<Location> locationList;
 
 
     public static void main(String[] args) throws FileNotFoundException {
@@ -40,16 +41,22 @@ public class Main {
         accountIO = new accountIO();
         accountHandler = new AccountHandler();
         receipeHandler = new ReceipeHandler();
+        restaurantHandler = new RestaurantHandler();
+        restaurantList = new ArrayList<>();
 
         CommandType currentCommand = CommandType.No_COMMAND;
+        Restaurant SelectedRestaurant = null;
         Ingredient SelectedIngredient = null;
         double IngredientQty;
         Receipe SelectedRecipe = null;
         Map<Ingredient , Double> InsufficientIngredients = null;
+        Restaurant UpdatedRestaurant = null;
 
         ingredients = ingredientio.readIngredientList("resources/ingredients.txt");
         receipeList = receipeio.readAllReceipe("resources/receipe.txt" , ingredients);
         availablemoney = accountIO.readAccount("resources/accounts.txt");
+        restaurantList = restaurantIO.readAllRestaurant("resources/Restaurant.txt");
+        locationList = LocationIO.readLocationList("resources/Location.txt");
 
         System.out.println("Available Money is " + availablemoney);
 
@@ -59,8 +66,16 @@ public class Main {
                 int selectNumber = displayPrompt();
                 currentCommand = CommandType.values()[selectNumber];
             }
+            else if(currentCommand == CommandType.SELECT_NEW_RESTAURANT){
+                System.out.println("Welcome to Cafe Chain -Enter the Location Name from the given List and start Ordering");
+                SelectedRestaurant = selectRestaurant();
+                System.out.println(SelectedRestaurant.getName()+"-> ID: "+SelectedRestaurant.getId()+" Restaurant Successfully Selected");
+                System.out.println("Welcome to "+ SelectedRestaurant.getName()+ "Restaurant");
+                currentCommand = CommandType.No_COMMAND;
+            }
             else if (currentCommand == CommandType.VIEW_TOTAL_SALES){
                 accountHandler.printSales(salesList);
+                System.out.println("Total sales of "+SelectedRestaurant.getName()+"Location: "+ SelectedRestaurant.getLocation());
                 currentCommand = CommandType.No_COMMAND;
             }
             else if (currentCommand == CommandType.VIEW_TOTAL_EXPENSE){
@@ -89,9 +104,16 @@ public class Main {
                 throw new InsusfficientmoneyException();
             }
             else if (currentCommand == CommandType.PLACE_ORDER){
-                SelectedRecipe = selectReceipe();
-                receipeHandler.checkifPossibleToPrepareRecipe(SelectedRecipe ,ingredients);
-                currentCommand = CommandType.FINALISE_ORDER;
+                if(SelectedRestaurant == null){
+                    System.out.println("Please Choose a restaurant and then start ordering");
+                    currentCommand = CommandType.No_COMMAND;
+                }
+                else {
+                    System.out.println("Place your order for " + SelectedRestaurant.getName()+" Restaurant at "+SelectedRestaurant.getLocation());
+                    SelectedRecipe = selectReceipe();
+                    receipeHandler.checkifPossibleToPrepareRecipe(SelectedRecipe, ingredients);
+                    currentCommand = CommandType.FINALISE_ORDER;
+                }
             }
             else if(currentCommand == CommandType.ORDER_MULTIPLE_INGREDIENTS){
                 ingredientHandler.isPossibleToOrderIngredients(InsufficientIngredients , availablemoney);
@@ -101,6 +123,12 @@ public class Main {
             else if(currentCommand == CommandType.FINALISE_ORDER){
                 finalizeOrder(SelectedRecipe);
                 System.out.println("Order for "+ SelectedRecipe.getName()+" "+ " is finalized and ready to serve!");
+                currentCommand = CommandType.No_COMMAND;
+            }
+            else if(currentCommand == CommandType.OPEN_NEW_RESTAURANT){
+                restaurantHandler.OpenNewRestaurant(restaurantList);
+                System.out.println("Restaurent Succesfully Opened");
+                System.out.println(restaurantList);
                 currentCommand = CommandType.No_COMMAND;
             }
             if(currentCommand == CommandType.EXIT){
@@ -124,13 +152,15 @@ public class Main {
 
     public static int displayPrompt(){
         System.out.println("Please select one of the following commands ");
-        System.out.println("1. View Available Ingredients ");
-        System.out.println("2. Order Specific Ingredients ");
+        System.out.println("1. Select a Restaurant");
+        System.out.println("2. View Available Ingredients");
         System.out.println("3. View Total Sales ");
         System.out.println("4. View Total Expense ");
         System.out.println("5. View Net Profit");
         System.out.println("6. Place Order");
-        System.out.println("7. Exit the Program");
+        System.out.println("7. Order Specific Ingredients");
+        System.out.println("8. Open New Restaurant");
+        System.out.println("9. Exit the Program");
 
         Scanner scan = new Scanner(System.in);
         return scan.nextInt();
@@ -141,7 +171,7 @@ public class Main {
         Scanner scanner = new Scanner(System.in);
         String ingredientname = scanner.nextLine();
 
-        for(int i = 0 ; i <=ingredients.size() ;i++){
+        for(int i = 0 ; i < ingredients.size() ;i++){
             if(ingredients.get(i).getName().equals(ingredientname)){
                 return ingredients.get(i);
             }
@@ -222,4 +252,32 @@ public class Main {
         }
     }
 
+    public static Restaurant selectRestaurant(){
+        System.out.println(restaurantList);
+        Scanner sc = new Scanner(System.in);
+        String restaurantName = sc.nextLine();
+        for(int i =0 ; i<restaurantList.size() ; i++){
+            if(restaurantList.get(i).getLocation().equals(restaurantName)){
+                return restaurantList.get(i);
+            }
+        }
+        throw new RestaurantNotFoundException(restaurantName +" "+"Not found");
+    }
+
+    public static Location selectLocation(){
+        Scanner sc = new Scanner(System.in);
+        String LocationName = sc.nextLine();
+        for (int i = 0 ; i< locationList.size(); i++){
+            if(locationList.get(i).getCity().equals(LocationName)){
+                return locationList.get(i);
+            }
+        }
+        throw new RestaurantNotFoundException("Location not specified");
+
+    }
+
+    public static List<Restaurant> UpdateRestaurantDetails(String Name , String location , double ID){
+        restaurantList.add(new Restaurant(Name , location , ID));
+        return restaurantList;
+    }
 }
