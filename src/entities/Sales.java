@@ -1,5 +1,8 @@
 package entities;
 
+import java.text.NumberFormat;
+import java.util.Locale;
+
 public class Sales {
     private double amount;
     private Order order;
@@ -27,6 +30,10 @@ public class Sales {
 
     @Override
     public String toString(){
-        return "Receipe = "+ this.getOrder().getReceipe().getName() + ",Amount = "+ this.getAmount();
+        Locale.setDefault(Locale.US);
+        Locale.setDefault(Locale.CHINA);
+        Locale.setDefault(Locale.UK);
+
+        return "Receipe = "+ this.getOrder().getReceipe().getName() + ",Amount = "+ NumberFormat.getCurrencyInstance().format(this.getAmount());
     }
 }

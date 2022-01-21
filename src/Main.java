@@ -83,9 +83,16 @@ public class Main {
                 currentCommand = CommandType.No_COMMAND;
             }
             else if (currentCommand == CommandType.VIEW_NET_PROFIT){
-                accountHandler.printProfit(salesList , expenseList);
-                currentCommand = CommandType.No_COMMAND;
-            }
+                if(SelectedRestaurant == null) {
+                    System.out.println("Please Choose a restaurant and then start the process \n\n Thank you!! \n");
+                    currentCommand = CommandType.No_COMMAND;
+                }
+                else{
+                    accountHandler.printProfit(salesList, expenseList);
+                    System.out.println("Total NetProfit of " + SelectedRestaurant.getName() + " Restaurant on " + "Location: " + SelectedRestaurant.getLocation());
+                    currentCommand = CommandType.No_COMMAND;
+                    }
+                }
             else if (currentCommand == CommandType.VIEW_AVAILABLE_INGREDIENTS){
                 ingredientHandler.viewIngredients(ingredients);
                 currentCommand = CommandType.No_COMMAND;
@@ -228,7 +235,6 @@ public class Main {
     }
     public static void finalizeOrder(Receipe receipe){
         Map<Ingredient , Double> composition = receipe.getComposition();
-
         for(int i = 0 ; i< ingredients.size(); i++){
             Ingredient currentIngredient = ingredients.get(i);
             if(composition.containsKey(currentIngredient)){
