@@ -12,6 +12,7 @@ import io.LocationIO;
 
 
 import java.io.FileNotFoundException;
+import java.text.NumberFormat;
 import java.util.*;
 
 public class Main {
@@ -273,6 +274,7 @@ public class Main {
     public static Location selectLocation(){
         Scanner sc = new Scanner(System.in);
         String LocationName = sc.nextLine();
+
         for (int i = 0 ; i< locationList.size(); i++){
             if(locationList.get(i).getCity().equals(LocationName)){
                 return locationList.get(i);
@@ -286,4 +288,5 @@ public class Main {
         restaurantList.add(new Restaurant(Name , location , ID));
         return restaurantList;
     }
+
 }

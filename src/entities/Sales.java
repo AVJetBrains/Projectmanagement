@@ -28,12 +28,10 @@ public class Sales {
         return order;
     }
 
+
     @Override
     public String toString(){
-        Locale.setDefault(Locale.US);
-        Locale.setDefault(Locale.CHINA);
-        Locale.setDefault(Locale.UK);
-
-        return "Receipe = "+ this.getOrder().getReceipe().getName() + ",Amount = "+ NumberFormat.getCurrencyInstance().format(this.getAmount());
+        Locale.setDefault(Locale.Category.valueOf("US"), Locale.US);
+            return "Receipe = " + this.getOrder().getReceipe().getName() + ",Amount = " + NumberFormat.getCurrencyInstance().format(this.getAmount());
     }
 }
